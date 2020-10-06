@@ -43,6 +43,8 @@ if [ -z "$REVISION" ] ; then
 fi
 
 # Check whether we need to perform download of actual version
+touch "${CHROMEDRIVER_INSTALL_DIR:?}"/checker
+
 if [[ $(< "${CHROMEDRIVER_INSTALL_DIR:?}"/checker) == "$REVISION" ]] ; then
   echo "[Chromedriver] Will use cached version."
   PERFORM_DOWNLOAD=false
