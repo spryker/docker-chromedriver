@@ -1,0 +1,140 @@
+#!/bin/bash
+
+#                    int|0    path|null   bool|null            path|null
+# chromium-installer REVISION INSTALL_DIR INSTALL_DEPENDENCIES MAKE_SYMLINKS
+
+if [ -z "$2" ] ; then
+  CHROMEDRIVER_INSTALL_DIR="/tmp/chromium-ecosystem"
+else
+  CHROMEDRIVER_INSTALL_DIR="$2"
+fi
+
+if [ "$3" = "false" ] ; then
+  INSTALL_DEPENDENCIES=false
+else
+  INSTALL_DEPENDENCIES=true
+fi
+
+if [ -z "$4" ] ; then
+  MAKE_SYMLINKS=false
+else
+  MAKE_SYMLINKS=true
+fi
+
+# You can use $CHROMEDRIVER_INSTALL_DIR as caching directory within Travis
+CHROMIUM_ZIP_FILENAME="chrome-linux" \
+  && CHROMEDRIVER_ZIP_FILENAME="chromedriver_linux64" \
+  && ZIP_URL_PREFIX="https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F" \
+  && ZIP_URL_POSTFIX="?alt=media"
+
+# --- 0. PREPARE
+# Check if Revision is correct
+if curl --output /dev/null --silent --head --fail "$ZIP_URL_PREFIX$1%2F$CHROMIUM_ZIP_FILENAME.zip$ZIP_URL_POSTFIX" ; then
+  REVISION=$1
+else
+  echo "[Chromedriver] Warning! Specified Chromedriver revision is incorrect."
+fi
+
+# Or fallback to newest "nightly build"
+if [ -z "$REVISION" ] ; then
+  echo "[Chromedriver] Falling back to latest Chromedriver revision..."
+  LASTCHANGE_URL=$ZIP_URL_PREFIX'LAST_CHANGE'$ZIP_URL_POSTFIX
+  REVISION=$(curl -s -S "$LASTCHANGE_URL")
+fi
+
+# Check whether we need to perform download of actual version
+if [[ $(< "${CHROMEDRIVER_INSTALL_DIR:?}"/checker) == "$REVISION" ]] ; then
+  echo "[Chromedriver] Will use cached version."
+  PERFORM_DOWNLOAD=false
+else
+  PERFORM_DOWNLOAD=true
+fi
+
+echo "[Chromedriver] Revision = $REVISION"
+
+# Install dependencies
+if [ "$INSTALL_DEPENDENCIES" = true ] ; then
+  export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update \
+    && apt-get install --no-install-recommends --no-install-suggests -y \
+      unzip \
+      gnupg \
+      libnss3-dev \
+      ca-certificates \
+      fonts-liberation \
+      libappindicator3-1 \
+      libasound2 \
+      libatk-bridge2.0-0 \
+      libatk1.0-0 \
+      libc6 \
+      libcairo2 \
+      libcups2 \
+      libdbus-1-3 \
+      libexpat1 \
+      libfontconfig1 \
+      libgbm1 \
+      libgcc1 \
+      libglib2.0-0 \
+      libgtk-3-0 \
+      libnspr4 \
+      libnss3 \
+      libpango-1.0-0 \
+      libpangocairo-1.0-0 \
+      libstdc++6 \
+      libx11-6 \
+      libx11-xcb1 \
+      libxcb1 \
+      libxcomposite1 \
+      libxcursor1 \
+      libxdamage1 \
+      libxext6 \
+      libxfixes3 \
+      libxi6 \
+      libxrandr2 \
+      libxrender1 \
+      libxss1 \
+      libxtst6 \
+      lsb-release \
+      wget \
+      xdg-utils
+fi
+
+# --- 1. DOWNLOAD
+if [[ "$PERFORM_DOWNLOAD" == true ]] ; then
+  mkdir -p "$CHROMEDRIVER_INSTALL_DIR" \
+    && cd "$CHROMEDRIVER_INSTALL_DIR" \
+    && CHROMIUM_ZIP_URL=$ZIP_URL_PREFIX$REVISION'%2F'$CHROMIUM_ZIP_FILENAME'.zip'$ZIP_URL_POSTFIX \
+    && CHROMEDRIVER_ZIP_URL=$ZIP_URL_PREFIX$REVISION'%2F'$CHROMEDRIVER_ZIP_FILENAME'.zip'$ZIP_URL_POSTFIX \
+    && CHROMIUM_ZIP_FILE=$CHROMEDRIVER_INSTALL_DIR'/'"${REVISION}-${CHROMIUM_ZIP_FILENAME}.zip" \
+    && CHORMEDRIVER_ZIP_FILE=$CHROMEDRIVER_INSTALL_DIR'/'"$REVISION-driver.zip"
+
+  # Remove all previous archives (clean-up)
+  # and force Chromium+Driver to be same version
+  rm -rf "${CHROMEDRIVER_INSTALL_DIR:?}"/*.zip
+  curl -# "$CHROMIUM_ZIP_URL" > "$CHROMIUM_ZIP_FILE"
+  rm -rf "${CHROMEDRIVER_INSTALL_DIR:?}"/${CHROMIUM_ZIP_FILENAME:?}/*
+  unzip -q -o "$CHROMIUM_ZIP_FILE"
+
+  curl -# "$CHROMEDRIVER_ZIP_URL" > "$CHORMEDRIVER_ZIP_FILE"
+  rm -rf "${CHROMEDRIVER_INSTALL_DIR:?}"/${CHROMEDRIVER_ZIP_FILENAME:?}/*
+  unzip -q -o "$CHORMEDRIVER_ZIP_FILE"
+
+  # --- 2. INTEGRATE
+  chmod 755 "$CHROMEDRIVER_INSTALL_DIR"'/'${CHROMEDRIVER_ZIP_FILENAME}'/chromedriver'
+
+  echo "$REVISION" > "${CHROMEDRIVER_INSTALL_DIR:?}"/checker
+fi
+
+unset CHROMIUM_BINARY \
+  && unset CHROMEDRIVER_BINARY
+
+export CHROMIUM_BINARY="$CHROMEDRIVER_INSTALL_DIR"'/'"${CHROMIUM_ZIP_FILENAME}/chrome"
+export CHROMEDRIVER_BINARY=$CHROMEDRIVER_INSTALL_DIR'/'${CHROMEDRIVER_ZIP_FILENAME}'/chromedriver'
+
+# Make symlinks option enabled
+if [ "$MAKE_SYMLINKS" = true ] ; then
+  ln -sf "$CHROMIUM_BINARY" "$4"/chrome
+  ln -sf "$CHROMEDRIVER_BINARY" "$4"/chromedriver
+fi
+
+cd - || exit

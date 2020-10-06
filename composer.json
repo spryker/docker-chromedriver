@@ -1,0 +1,19 @@
+{
+    "name": "spryker/docker-chromedriver",
+    "description": "Source of Chromedriver with Chromium for building Docker containers and integrated usage.",
+    "type": "custom-installer",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aleksandr Bezpiatov",
+            "email": "aleksandr.bezpiatov@spryker.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-0": {
+            "ChromedriverInstaller\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
