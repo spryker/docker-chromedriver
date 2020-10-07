@@ -102,7 +102,7 @@ if [ "$INSTALL_DEPENDENCIES" = true ] ; then
 fi
 
 mkdir -p "$CHROMEDRIVER_INSTALL_DIR" \
-  && cd "$CHROMEDRIVER_INSTALL_DIR" || return \
+  && cd "$CHROMEDRIVER_INSTALL_DIR" || return
 
 # --- 1. DOWNLOAD
 if [[ "$PERFORM_DOWNLOAD" == true ]] ; then
