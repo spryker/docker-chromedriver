@@ -113,6 +113,7 @@ if [[ "$PERFORM_DOWNLOAD" == true ]] ; then
   # Remove all previous archives (clean-up)
   # and force Chromium+Driver to be same version
   rm -rf "${CHROMEDRIVER_INSTALL_DIR:?}"/*.zip
+  rm -rf "${CHROMEDRIVER_INSTALL_DIR:?}"/chrome*
   curl -# "$CHROMIUM_ZIP_URL" > "$CHROMIUM_ZIP_FILE"
   rm -rf "${CHROMEDRIVER_INSTALL_DIR:?}"/${CHROMIUM_ZIP_FILENAME:?}/*
   unzip -q -o "$CHROMIUM_ZIP_FILE"

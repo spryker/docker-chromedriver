@@ -59,7 +59,6 @@ class Installer
 
         echo "[Chromedriver] Suggested Revision = {$revision}" . PHP_EOL;
 
-        passthru("rm -rf {$dir_vendor}/chrome*");
         passthru("{$dir_vendor}/chromium-installer {$revision} {$dir_vendor} false {$dir_bin}");
         passthru("rm -rf {$dir_vendor}/*.zip");
     }
