@@ -1,0 +1,35 @@
+name: Docker Image Build Check
+
+on:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          ### docker-chromedriver:latest
+          - image: 'Dockerfile'
+            tags: [ "spryker/chromedriver:latest" ]
+
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          file: ${{ matrix.image }}
+          tags: ${{ join(matrix.tags) }}
+          platforms: ${{ join(matrix.platform) }}
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.GIT_AUTH_TOKEN }}
