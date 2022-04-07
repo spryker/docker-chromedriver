@@ -28,7 +28,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          push: ${{ github.ref == 'ref/head/master' }}
+          push: ${{ github.ref == 'refs/heads/master' }}
           file: ${{ matrix.image }}
           tags: ${{ join(matrix.tags) }}
           platforms: ${{ join(matrix.platform) }}
