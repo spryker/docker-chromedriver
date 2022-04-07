@@ -12,6 +12,7 @@ jobs:
           ### docker-chromedriver:latest
           - image: 'Dockerfile'
             tags: [ "spryker/chromedriver:latest" ]
+            platforms: [ 'linux/amd64', 'linux/arm64' ]
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -31,4 +32,4 @@ jobs:
           push: ${{ github.ref == 'refs/heads/master' }}
           file: ${{ matrix.image }}
           tags: ${{ join(matrix.tags) }}
-          platforms: ${{ join(matrix.platform) }}
+          platforms: ${{ join(matrix.platforms) }}
