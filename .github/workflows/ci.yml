@@ -12,7 +12,7 @@ jobs:
           ### docker-chromedriver:latest
           - image: 'Dockerfile'
             tags: [ "spryker/chromedriver:latest" ]
-            platforms: [ 'linux/amd64', 'linux/arm64' ]
+            platforms: [ 'linux/amd64', 'linux/arm64', 'linux/arm64/v8']
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
