@@ -220,5 +220,3 @@ Since this package relies on nightly builds, not all versions of Chromium are av
 To check the available revisions, please visit
 [Google Chromium Snapshots](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/)
 archive and find appropriate snapshot revision.
-
-
