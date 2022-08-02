@@ -10,6 +10,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get install --no-install-recommends --no-install-suggests -y \
     ca-certificates \
     curl \
+    netcat \
     chromium-driver chromium \
   && apt-get autoremove --purge -y \
       unzip \
