@@ -167,8 +167,7 @@ script:
 ## Dependencies
 To run Chromedriver with Chromium you need to install this list of dependencies beforehand:
 ```shell script
-apt-get update \
-&& apt-get install gnupg \
+apt-get update && apt-get install gnupg \
       libnss3-dev \
       ca-certificates \
       fonts-liberation \
