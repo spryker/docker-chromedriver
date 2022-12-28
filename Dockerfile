@@ -1,15 +1,29 @@
-FROM alpine:latest
+FROM debian:bullseye-slim
 
-RUN addgroup webdriver && adduser -h /home/webdriver -s /bin/sh -G webdriver -D webdriver
+RUN useradd -u 1000 -m -U webdriver
 
 WORKDIR /home/webdriver
 
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+RUN export DEBIAN_FRONTEND=noninteractive \
+  && apt-get update \
+  && apt-get dist-upgrade -y \
+  && apt-get install --no-install-recommends --no-install-suggests -y \
+    ca-certificates \
+    curl \
+    netcat \
+    chromium-driver chromium \
+  && apt-get autoremove --purge -y \
+      unzip \
+      gnupg \
+  && apt-get clean \
+  && rm -rf \
+    /usr/share/doc/* \
+    /var/cache/* \
+    /var/lib/apt/lists/* \
+    /var/tmp/* \
+    /home/webdriver/*.zip
 
-RUN apk update && apk add chromium-chromedriver chromium
-
-RUN ln -s /usr/lib/chromium/chromium-launcher.sh /usr/local/bin/chrome
+RUN ln -s /usr/bin/chromium /usr/local/bin/chrome
 
 USER webdriver
 
